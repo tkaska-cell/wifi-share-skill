@@ -148,9 +148,11 @@ Because a Wi‑Fi password ends up on a public URL, these safeguards ship on:
 
 ## 🌾 About the author
 
-**Keita Takasuka** — fermentation producer / event director
+**Keita Takasuka** — fermentation producer / event director / CXO at AIVEST
 
-I work to spread Japan's **fermentation culture** — rooted in our tables for over a thousand years — in a way that feels alive and fun again.
+At the AI marketing company **AIVEST**, I serve as **CXO (Chief Experience Officer)**, focused on maximizing customer experience. Removing small frictions to make an experience feel effortless — exactly like this skill — is a consistent theme in my work.
+
+I also work to spread Japan's **fermentation culture** — rooted in our tables for over a thousand years — in a way that feels alive and fun again.
 Its home base is **FERMENT U, a specialty shop for rice *koji***. While making living ferments — koji, amazake, fermented herb salt — part of everyday life, I also produce fermentation events across Japan (our 2025 Fermentation EXPO drew 2,000+ visitors).
 
 This skill was born from that world: from repeating "here's the Wi‑Fi" more times than I can count, and wanting to do it without hurting the guest experience.
