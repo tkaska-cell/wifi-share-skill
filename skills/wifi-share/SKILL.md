@@ -42,12 +42,15 @@ python3 ~/.claude/skills/wifi-share/scripts/build_poster.py \
   --ssid "<SSID>" --password "<PW>" --auth "<WPA|WEP|nopass>" \
   --venue "<会場名/空文字>" \
   --outdir "<project>/public" \
-  --qr-png "<project>/public/wifi_qr.png"
+  --qr-png "<project>/public/wifi_qr.png" \
+  --project-dir "<project>"
 ```
 
-スクリプトは QR PNG を base64 roundtrip ＋ PIL load で自己検証してから埋め込む
-（🚨 **過去にQRが途中破損して真っ黒表示になった事故あり**＝この検証は外さない）。
-`OK payload=... / WROTE ...` が出れば成功。
+- スクリプトは QR PNG を base64 roundtrip ＋ PIL load で自己検証してから埋め込む
+  （🚨 **過去にQRが途中破損して真っ黒表示になった事故あり**＝この検証は外さない）
+- ポスターHTMLには `noindex,nofollow` メタを自動付与、`--project-dir` 指定で
+  セキュリティヘッダー付き `vercel.json`（X-Robots-Tag / nosniff / no-referrer / X-Frame-Options DENY）を自動生成
+- `OK payload=... / WROTE ... VERCEL_JSON=...` が出れば成功
 
 ## Step 4: デプロイ前にローカル描画で目視確認（必須）
 
@@ -69,12 +72,14 @@ python3 ~/.claude/skills/wifi-share/scripts/build_poster.py \
 2. 未ログインなら、ユーザーに次を依頼（対話式のため本人が実行）:
    > プロンプトに `! vercel login` を貼って実行してください。メールは公開物の帰属に合わせて選択（AIVEST=tkaska@h-bb.jp）。
    ログイン完了を待ってから続行。
-3. 本番デプロイ:
+3. 本番デプロイ（🔒 **推測されにくいURL**にするためランダムsuffixを付ける）:
    ```bash
-   cd <project> && vercel deploy --prod --yes --name venue-wifi
+   SUFFIX=$(openssl rand -hex 3)
+   cd <project> && vercel deploy --prod --yes --name "venue-wifi-$SUFFIX"
    ```
-   出力の `Aliased https://venue-wifi.vercel.app` などの本番URLを控える。
+   出力の `Production https://venue-wifi-xxxxxx.vercel.app` を本番URLとして控える。
    （🚨 デフォルトでProductionは認証ゲート無し＝誰でも閲覧可。Preview保護は関係ない）
+   ※ 会場ごとに使い回すなら `--name` を固定してもよいが、URLが推測されにくい方が安全
 
 ## Step 6: ライブURLを描画確認 → 報告
 
@@ -85,7 +90,10 @@ sleep 3
   "https://<本番URL>?v=1"
 ```
 スクショを Read で目視し、QR＋SSID＋PWが正しく出ていれば完了。
-`curl -sI <URL>` で `HTTP/2 200` と SSO Cookie（`_vercel_sso`）が無いことも確認（認証ゲート無し＝公開OK）。
+`curl -sI <URL>` で以下を確認:
+- `HTTP/2 200` で表示される
+- SSO Cookie（`_vercel_sso`）が無い（認証ゲート無し＝公開OK）
+- 🔒 `x-robots-tag: noindex, nofollow` が返る（検索エンジンに拾われない＝vercel.jsonが効いている）
 
 印刷用に QR 単体PNGを Finder表示: `open -R "<project>/public/wifi_qr.png"`
 
@@ -104,9 +112,21 @@ sleep 3
 - **接続情報変更/別会場**: Step 3 を新しい引数で再実行 → `cd <project> && vercel deploy --prod --yes`（同じURLのまま更新）
 - **公開停止**: `cd <project> && vercel remove venue-wifi --yes`
 
+## 🔒 セキュリティ対策（既定で組み込み済み）
+
+WiFiパスワードを公開URLに載せる性質上、以下を標準で施す:
+
+1. **検索エンジン非掲載**: ポスターに `noindex,nofollow` メタ＋ `X-Robots-Tag` ヘッダー（vercel.json）。Google等にパスワードがインデックスされない
+2. **推測されにくいURL**: プロジェクト名に `openssl rand -hex 3` のランダムsuffix。総当たりで見つけにくくする
+3. **セキュリティヘッダー**: `X-Content-Type-Options: nosniff` / `Referrer-Policy: no-referrer` / `X-Frame-Options: DENY`（他サイトへの埋め込み=clickjacking防止）
+4. **短命運用の推奨**: イベント終了後は `vercel remove <name> --yes` で確実に削除。長期放置しない
+5. **載せてよい情報の線引き**: 会場に掲示・配布する前提の**ゲスト用**WiFiのみ。自宅・オフィスの常用WiFiや、社内ネットワークの認証情報は公開URLに載せない → その場合は**ローカルHTML/印刷用PNGのみ**で渡す
+6. **QRの中身はパスワードそのもの**: QR画像を公開SNS等に貼ることは、パスワードを平文で貼るのと同じ。掲示範囲を意識する
+
+判断に迷う認証情報（自宅・社内等）が来たら、公開せず「ローカル配布のみ」を提案してから進める。
+
 ## 注意事項
 
 - 🚨 **仕事(AIVEST/CC/PABLOS)の公開物に ferment-u ドメインを使わない**（`unlisted-html-publish`のCloudflareはFERMENT U専用）。仕事の会場は Vercel の中立ドメイン一択
 - 🚨 QRの健全性検証（Step 3）とデプロイ前後の描画目視（Step 4/6）は省略しない
-- パスワードは会場掲示前提の共有情報。個人宅の常用WiFi等、外部公開が不適切なら公開せずローカルHTML/PNGのみで渡す
 - Vercelアカウントは公開物の帰属に合わせる（AIVEST=tkaska@h-bb.jp）

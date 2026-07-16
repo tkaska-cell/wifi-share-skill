@@ -54,6 +54,8 @@ def build_qr_datauri(payload: str) -> str:
 
 
 HTML_TEMPLATE = """<title>{title}</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="no-referrer" />
 <style>
   :root {{
     --bg:#eef1f0; --card:#fff; --ink:#14201d; --muted:#5a6b67; --line:#dbe3e0;
@@ -168,6 +170,8 @@ def main():
     ap.add_argument("--venue", default="", help="会場名など（省略可）")
     ap.add_argument("--outdir", required=True, help="public/ ディレクトリ（index.htmlをここに出力）")
     ap.add_argument("--qr-png", default="", help="QR単体PNGの保存先（省略可・印刷用）")
+    ap.add_argument("--project-dir", default="",
+                    help="Vercelプロジェクトルート。指定するとセキュリティヘッダー付き vercel.json を出力")
     args = ap.parse_args()
 
     payload = "WIFI:S:{s};T:{t};P:{p};;".format(
@@ -195,8 +199,30 @@ def main():
         os.makedirs(os.path.dirname(args.qr_png) or ".", exist_ok=True)
         img.save(args.qr_png)
 
+    if args.project_dir:
+        # セキュリティヘッダー: 検索非掲載・MIMEスニッフ防止・リファラ抑止・埋め込み(clickjacking)防止
+        vjson = (
+            '{\n'
+            '  "headers": [\n'
+            '    {\n'
+            '      "source": "/(.*)",\n'
+            '      "headers": [\n'
+            '        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },\n'
+            '        { "key": "X-Content-Type-Options", "value": "nosniff" },\n'
+            '        { "key": "Referrer-Policy", "value": "no-referrer" },\n'
+            '        { "key": "X-Frame-Options", "value": "DENY" }\n'
+            '      ]\n'
+            '    }\n'
+            '  ]\n'
+            '}\n'
+        )
+        os.makedirs(args.project_dir, exist_ok=True)
+        with open(os.path.join(args.project_dir, "vercel.json"), "w", encoding="utf-8") as f:
+            f.write(vjson)
+
     print("OK payload=" + payload)
-    print("WROTE " + out + (" QR_PNG=" + args.qr_png if args.qr_png else ""))
+    print("WROTE " + out + (" QR_PNG=" + args.qr_png if args.qr_png else "")
+          + (" VERCEL_JSON=" + os.path.join(args.project_dir, "vercel.json") if args.project_dir else ""))
 
 
 if __name__ == "__main__":
