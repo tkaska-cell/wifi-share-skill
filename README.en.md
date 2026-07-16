@@ -9,6 +9,11 @@ A Wi‑Fi sharing skill built by **Keita Takasuka — fermentation producer / ev
 Give it a network name and password, and it **generates a connection QR poster → publishes a public URL (`https://xxxxxx.vercel.app`)** in one go.
 
 <p align="center">
+  <img src="assets/demo-en.gif" width="640" alt="Point camera → detect → tap → connected demo" />
+</p>
+<p align="center"><sub>Point your camera → auto-detected → tap → connected (zero password typing)</sub></p>
+
+<p align="center">
   <img src="assets/poster-en.png" width="300" alt="Wi‑Fi connection poster (English)" />
   &nbsp;&nbsp;
   <img src="assets/poster-dark.png" width="300" alt="Wi‑Fi connection poster (dark)" />

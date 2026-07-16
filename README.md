@@ -9,6 +9,11 @@
 Wi‑Fiの「ネットワーク名」と「パスワード」を渡すだけで、**接続用QRポスターを自動生成 → 公開URL（`https://〇〇.vercel.app`）まで一気に仕上げます。**
 
 <p align="center">
+  <img src="assets/demo.gif" width="640" alt="かざす→検出→タップ→接続完了 のデモ" />
+</p>
+<p align="center"><sub>カメラをかざすだけ → 自動で検出 → タップ → 接続完了（パスワード入力ゼロ）</sub></p>
+
+<p align="center">
   <img src="assets/poster-light.png" width="300" alt="Wi‑Fi接続ポスター（ライト）" />
   &nbsp;&nbsp;
   <img src="assets/poster-dark.png" width="300" alt="Wi‑Fi接続ポスター（ダーク）" />
