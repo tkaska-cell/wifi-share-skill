@@ -1,5 +1,7 @@
 # 📶 wifi-share — 会場のWi‑Fiを「かざすだけ」でお渡しする
 
+**日本語** | [English](README.en.md)
+
 > 受付で「Wi‑Fiのパスワードは…」を、もう何十回も言わなくていい。
 > 来場者がカメラをかざすだけで、その場でつながる。
 
@@ -121,8 +123,14 @@ python3 skills/wifi-share/scripts/build_poster.py \
 ## 🎨 カスタマイズ
 
 - `--venue "会場名"` … ヘッダーに会場名・イベント名を入れられます
+- `--lang ja|en` … ポスターの表示言語（既定 `ja`。**海外・インバウンド会場は `en`** で英語ポスターに）
 - `--auth WPA|WEP|nopass` … 認証方式（既定は `WPA`。パスワード無しの公衆Wi‑Fiは `nopass`）
-- デザイン（色・文言）は `build_poster.py` 内のHTMLテンプレートを編集すればブランドに合わせられます
+- デザイン（色・文言）は `build_poster.py` 内のHTMLテンプレート／`STRINGS` を編集すればブランド・他言語に合わせられます
+
+<p align="center">
+  <img src="assets/poster-en.png" width="300" alt="English Wi‑Fi poster" />
+</p>
+<p align="center"><sub>👆 <code>--lang en</code> で英語ポスターも出力できます</sub></p>
 
 ---
 

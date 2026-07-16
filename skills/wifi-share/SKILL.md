@@ -41,10 +41,13 @@ allowed-tools: Read Write Edit Bash Glob
 python3 ~/.claude/skills/wifi-share/scripts/build_poster.py \
   --ssid "<SSID>" --password "<PW>" --auth "<WPA|WEP|nopass>" \
   --venue "<会場名/空文字>" \
+  --lang "<ja|en>" \
   --outdir "<project>/public" \
   --qr-png "<project>/public/wifi_qr.png" \
   --project-dir "<project>"
 ```
+
+- `--lang` 既定 `ja`。**海外・インバウンド会場や英語圏向けは `en`**（ポスターUIが英語化）。会話や会場情報から言語を推定してよい
 
 - スクリプトは QR PNG を base64 roundtrip ＋ PIL load で自己検証してから埋め込む
   （🚨 **過去にQRが途中破損して真っ黒表示になった事故あり**＝この検証は外さない）

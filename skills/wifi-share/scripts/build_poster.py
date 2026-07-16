@@ -109,46 +109,47 @@ HTML_TEMPLATE = """<title>{title}</title>
   @media print {{ body {{ background:#fff; }} .card {{ box-shadow:none; border-color:#ccc; }} .copy {{ display:none; }} }}
 </style>
 
-<div class="card">
+<div class="card" lang="{lang}">
   <p class="eyebrow">{eyebrow}</p>
-  <h1>Wi‑Fiにつなぐ</h1>
-  <p class="sub">スマホのカメラでQRを読み取るだけ</p>
+  <h1>{t_headline}</h1>
+  <p class="sub">{t_sub}</p>
 
   <div class="qr">
-    <img alt="Wi‑Fi接続用QRコード" src="{qr_src}" />
+    <img alt="{t_qr_alt}" src="{qr_src}" />
   </div>
-  <p class="scan-hint">カメラを向けて、表示される通知をタップ</p>
+  <p class="scan-hint">{t_scan_hint}</p>
 
   <div class="fields">
     <div class="field">
       <div>
-        <div class="label">ネットワーク名</div>
+        <div class="label">{t_label_network}</div>
         <div class="value" id="ssid">{ssid}</div>
       </div>
-      <button class="copy" data-target="ssid" type="button">コピー</button>
+      <button class="copy" data-target="ssid" type="button">{t_copy}</button>
     </div>
     <div class="field">
       <div>
-        <div class="label">パスワード</div>
+        <div class="label">{t_label_password}</div>
         <div class="value" id="pass">{password}</div>
       </div>
-      <button class="copy" data-target="pass" type="button">コピー</button>
+      <button class="copy" data-target="pass" type="button">{t_copy}</button>
     </div>
   </div>
 
   <div class="steps">
-    <b>手動で接続する場合</b><br>
-    設定 → Wi‑Fi → <b>{ssid}</b> を選び、上のパスワードを入力してください。
+    <b>{t_manual_title}</b><br>
+    {t_manual_body}
   </div>
 </div>
 
 <script>
+  var COPY_DONE = "{t_copy_done}";
   document.querySelectorAll(".copy").forEach(function (btn) {{
     btn.addEventListener("click", function () {{
       var text = document.getElementById(btn.dataset.target).textContent.trim();
       navigator.clipboard.writeText(text).then(function () {{
         var original = btn.textContent;
-        btn.textContent = "コピー済み";
+        btn.textContent = COPY_DONE;
         btn.classList.add("done");
         setTimeout(function () {{ btn.textContent = original; btn.classList.remove("done"); }}, 1500);
       }});
@@ -156,6 +157,41 @@ HTML_TEMPLATE = """<title>{title}</title>
   }});
 </script>
 """
+
+
+# UI文言（言語別）。世界の会場で使えるよう日英を用意。
+STRINGS = {
+    "ja": {
+        "headline": "Wi‑Fiにつなぐ",
+        "sub": "スマホのカメラでQRを読み取るだけ",
+        "qr_alt": "Wi‑Fi接続用QRコード",
+        "scan_hint": "カメラを向けて、表示される通知をタップ",
+        "label_network": "ネットワーク名",
+        "label_password": "パスワード",
+        "copy": "コピー",
+        "copy_done": "コピー済み",
+        "manual_title": "手動で接続する場合",
+        "manual_body": "設定 → Wi‑Fi → <b>{ssid}</b> を選び、上のパスワードを入力してください。",
+        "eyebrow": "ゲスト Wi‑Fi",
+        "title_venue": "{venue} Wi‑Fi",
+        "title_default": "ゲストWi‑Fi ご案内",
+    },
+    "en": {
+        "headline": "Connect to Wi‑Fi",
+        "sub": "Just point your phone camera at the QR code",
+        "qr_alt": "Wi‑Fi connection QR code",
+        "scan_hint": "Point your camera at the code and tap the notification",
+        "label_network": "Network",
+        "label_password": "Password",
+        "copy": "Copy",
+        "copy_done": "Copied",
+        "manual_title": "Connect manually",
+        "manual_body": "Settings → Wi‑Fi → <b>{ssid}</b>, then enter the password above.",
+        "eyebrow": "Guest Wi‑Fi",
+        "title_venue": "{venue} Wi‑Fi",
+        "title_default": "Guest Wi‑Fi",
+    },
+}
 
 
 def html_escape(s: str) -> str:
@@ -172,22 +208,38 @@ def main():
     ap.add_argument("--qr-png", default="", help="QR単体PNGの保存先（省略可・印刷用）")
     ap.add_argument("--project-dir", default="",
                     help="Vercelプロジェクトルート。指定するとセキュリティヘッダー付き vercel.json を出力")
+    ap.add_argument("--lang", default="ja", choices=sorted(STRINGS.keys()),
+                    help="ポスターの表示言語（既定 ja。海外会場は en）")
     args = ap.parse_args()
+
+    t = STRINGS[args.lang]
 
     payload = "WIFI:S:{s};T:{t};P:{p};;".format(
         s=wifi_escape(args.ssid), t=args.auth, p=wifi_escape(args.password)
     )
     qr_src, img = build_qr_datauri(payload)
 
-    eyebrow = (html_escape(args.venue) + " · Guest Wi‑Fi") if args.venue else "Guest Wi‑Fi"
-    title = (args.venue + " Wi‑Fi") if args.venue else "ゲストWi‑Fi ご案内"
+    eyebrow = (html_escape(args.venue) + " · " + t["eyebrow"]) if args.venue else t["eyebrow"]
+    title = t["title_venue"].format(venue=args.venue) if args.venue else t["title_default"]
+    manual_body = t["manual_body"].format(ssid=html_escape(args.ssid))
 
     html = HTML_TEMPLATE.format(
         title=html_escape(title),
+        lang=args.lang,
         eyebrow=eyebrow,
         qr_src=qr_src,
         ssid=html_escape(args.ssid),
         password=html_escape(args.password),
+        t_headline=t["headline"],
+        t_sub=t["sub"],
+        t_qr_alt=t["qr_alt"],
+        t_scan_hint=t["scan_hint"],
+        t_label_network=t["label_network"],
+        t_label_password=t["label_password"],
+        t_copy=t["copy"],
+        t_copy_done=t["copy_done"],
+        t_manual_title=t["manual_title"],
+        t_manual_body=manual_body,
     )
 
     os.makedirs(args.outdir, exist_ok=True)
