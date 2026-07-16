@@ -41,13 +41,16 @@ allowed-tools: Read Write Edit Bash Glob
 python3 ~/.claude/skills/wifi-share/scripts/build_poster.py \
   --ssid "<SSID>" --password "<PW>" --auth "<WPA|WEP|nopass>" \
   --venue "<会場名/空文字>" \
-  --lang "<ja|en>" \
+  --lang "<ja|en|zh|ko|es>" --langs "ja,en,zh,ko,es" \
   --outdir "<project>/public" \
   --qr-png "<project>/public/wifi_qr.png" \
   --project-dir "<project>"
 ```
 
-- `--lang` 既定 `ja`。**海外・インバウンド会場や英語圏向けは `en`**（ポスターUIが英語化）。会話や会場情報から言語を推定してよい
+- **言語スイッチャ内蔵**: ポスター上部に 日本語/English/中文/한국어/Español のボタン。ゲストがタップで即切替（リロード無し・印刷は選択中の言語で出力）
+- `--langs` 並べる言語（既定 `ja,en,zh,ko,es`）／`--lang` 初期表示（既定 `ja`）。国内向けでも海外ゲスト対応で全部入れておいてよい
+- QR下に**カメラアプリ案内**（iPhone=標準カメラ／Android=カメラ/フォトアプリ）を各言語で表示
+- `?lang=en` のようにURLで初期言語を指定した共有リンクも作れる
 
 - スクリプトは QR PNG を base64 roundtrip ＋ PIL load で自己検証してから埋め込む
   （🚨 **過去にQRが途中破損して真っ黒表示になった事故あり**＝この検証は外さない）

@@ -52,8 +52,8 @@ Not a single character typed. It uses the standard **Wi‑Fi QR code** format su
 | 📷 **Scan to connect** | Native Wi‑Fi QR on iPhone/Android. One tap, no app |
 | 🔗 **Shareable URL** | Publishes a public link — post it, message it, put it on a slide |
 | 🖨️ **Print-ready** | Also outputs a standalone QR PNG. Stick it on the door |
+| 🌐 **Language switcher** | 日本語 / English / 中文 / 한국어 / Español — guests tap to switch instantly |
 | 🌗 **Auto light/dark** | Adapts to the venue screen or the guest's phone |
-| 🌐 **Multi-language** | Japanese & English posters out of the box (`--lang`) |
 | ⌨️ **Manual fallback** | Copy buttons for network/password + manual steps included |
 | 🛡️ **Built-in QR integrity check** | Self-verifies the generated QR to prevent "won't scan" on-site |
 
@@ -117,9 +117,14 @@ Open `index.html` in a browser to use it immediately, or host it anywhere — Ve
 ## 🎨 Customize
 
 - `--venue "Name"` … puts the venue / event name in the header
-- `--lang ja|en` … poster language (default `ja`; use `en` for international venues)
+- `--langs ja,en,zh,ko,es` … languages shown in the switcher · `--lang ja` … initial language
 - `--auth WPA|WEP|nopass` … security type (default `WPA`; use `nopass` for open networks)
 - Edit the HTML template / `STRINGS` dict in `build_poster.py` to match your brand or add a language
+
+<p align="center">
+  <img src="assets/poster-multilang.png" width="300" alt="Wi‑Fi poster with language switcher" />
+</p>
+<p align="center"><sub>👆 Tap to switch 日本語 / English / 中文 / 한국어 / Español (shown: 한국어)</sub></p>
 
 ---
 
